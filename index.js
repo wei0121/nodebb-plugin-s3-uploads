@@ -218,19 +218,19 @@ var AWS = require('aws-sdk'),
         if (settings.host && 0 < settings.host.length) {
           s3Host = settings.host;
 
-          if (s3Host.match(/\/$/)) {
-            // Strip trailing slash
-            s3Host = s3Host.slice(0,-1);
+          if (!s3Host.match(/\/$/)) {
+            // Add trailing slash
+            s3Host = s3Host + '/';
           }
         }
         else {
-          s3Host = params.Bucket + ".s3.amazonaws.com";
+          s3Host = params.Bucket + ".s3.amazonaws.com/";
         }
 
         callback(null, {
           name: image.name,
           // Use protocol-less urls so that both HTTP and HTTPS work:
-          url: "//" + s3Host + s3Path + params.Key
+          url: "//" + s3Host + params.Key
         });
       });
     }
