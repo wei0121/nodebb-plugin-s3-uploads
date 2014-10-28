@@ -58,6 +58,18 @@ var AWS = require('aws-sdk'),
         settings.bucket = newSettings.bucket;
       }
 
+      if(!newSettings.host){
+        settings.host = "";
+      }else{
+        settings.host = newSettings.host;
+      }
+
+      if(!newSettings.path){
+        settings.path = "";
+      }else{
+        settings.path = newSettings.path;
+      }
+
       if(settings.accessKeyId && settings.secretAccessKey){
         AWS.config.update({
           accessKeyId: settings.accessKeyId,
@@ -107,7 +119,7 @@ var AWS = require('aws-sdk'),
       app.get(adminRoute, middleware.admin.buildHeader, renderAdmin);
       app.get('/api' + adminRoute, renderAdmin);
 
-      app.post('/api' + adminRoute + '/bucket', bucket);
+      app.post('/api' + adminRoute + '/s3settings', s3settings);
       app.post('/api' + adminRoute + '/credentials', credentials);
 
       callback();
@@ -124,10 +136,12 @@ var AWS = require('aws-sdk'),
     res.render('admin/plugins/s3-uploads', data);
   }
 
-  function bucket(req, res, next) {
+  function s3settings(req, res, next) {
     var data = req.body;
     var newSettings = {
-      bucket: data.bucket || ''
+      bucket: data.bucket || '',
+      host: data.host || '',
+      path: data.path || ''
     };
 
     saveSettings(newSettings, res, next);
@@ -181,10 +195,36 @@ var AWS = require('aws-sdk'),
           return callback(makeError(err));
         }
 
+        var s3Host;
+        if (settings.host && 0 < settings.host.length) {
+          s3Host = settings.host;
+
+          if (s3Host.match(/\/$/)) {
+            // Strip trailing slash
+            s3Host = s3Host.slice(0,-1);
+          }
+        }
+        else {
+          s3Host = params.Bucket + ".s3.amazonaws.com";
+        }
+
+        var s3Path;
+        if (settings.path && 0 < settings.path.length) {
+          s3Path = settings.path;
+
+          if (!s3Path.match(/\/$/)) {
+            // Add trailing slash
+            s3Path = s3Path + '/';
+          }
+        }
+        else {
+          s3Path = '/';
+        }
+
         callback(null, {
           name: image.name,
           // Use protocol-less urls so that both HTTP and HTTPS work:
-          url: "//" + params.Bucket + ".s3.amazonaws.com/" + params.Key
+          url: "//" + s3Host + s3Path + params.Key
         });
       });
     }
