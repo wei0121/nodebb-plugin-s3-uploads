@@ -185,10 +185,25 @@ var AWS = require('aws-sdk'),
         return callback(makeError(err));
       }
 
+      var s3Path;
+      if (settings.path && 0 < settings.path.length) {
+        s3Path = settings.path;
+
+        if (!s3Path.match(/\/$/)) {
+          // Add trailing slash
+          s3Path = s3Path + '/';
+        }
+      }
+      else {
+        s3Path = '/';
+      }
+
+      var s3KeyPath = s3Path.replace(/^\//, ''); // S3 Key Path should not start with slash.
+
       var params = {
         Bucket: settings.bucket,
         ACL: "public-read",
-        Key: uuid() + path.extname(image.name),
+        Key: s3KeyPath + uuid() + path.extname(image.name),
         Body: buffer,
         ContentLength: buffer.length,
         ContentType: mime.lookup(image.name)
@@ -210,19 +225,6 @@ var AWS = require('aws-sdk'),
         }
         else {
           s3Host = params.Bucket + ".s3.amazonaws.com";
-        }
-
-        var s3Path;
-        if (settings.path && 0 < settings.path.length) {
-          s3Path = settings.path;
-
-          if (!s3Path.match(/\/$/)) {
-            // Add trailing slash
-            s3Path = s3Path + '/';
-          }
-        }
-        else {
-          s3Path = '/';
         }
 
         callback(null, {
