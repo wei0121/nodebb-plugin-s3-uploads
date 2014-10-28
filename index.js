@@ -17,7 +17,9 @@ var AWS = require('aws-sdk'),
   var settings = {
     "accessKeyId": false,
     "secretAccessKey": false,
-    "bucket": process.env.S3_UPLOADS_BUCKET || undefined
+    "bucket": process.env.S3_UPLOADS_BUCKET || undefined,
+    "host": undefined,
+    "path": undefined
   };
 
   var accessKeyIdFromDb = false;
@@ -129,6 +131,8 @@ var AWS = require('aws-sdk'),
   function renderAdmin(req, res) {
     var data = {
       bucket: settings.bucket,
+      host: settings.host,
+      path: settings.path,
       accessKeyId: (accessKeyIdFromDb && settings.accessKeyId) || '',
       secretAccessKey: (accessKeyIdFromDb && settings.secretAccessKey) || ''
     };
