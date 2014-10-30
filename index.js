@@ -18,8 +18,8 @@ var AWS = require('aws-sdk'),
     "accessKeyId": false,
     "secretAccessKey": false,
     "bucket": process.env.S3_UPLOADS_BUCKET || undefined,
-    "host": undefined,
-    "path": undefined
+    "host": process.env.S3_UPLOADS_HOST || undefined,
+    "path": process.env.S3_UPLOADS_PATH || undefined
   };
 
   var accessKeyIdFromDb = false;
@@ -61,13 +61,13 @@ var AWS = require('aws-sdk'),
       }
 
       if(!newSettings.host){
-        settings.host = "";
+        settings.host = process.env.S3_UPLOADS_HOST || "";
       }else{
         settings.host = newSettings.host;
       }
 
       if(!newSettings.path){
-        settings.path = "";
+        settings.path = process.env.S3_UPLOADS_PATH || "";
       }else{
         settings.path = newSettings.path;
       }

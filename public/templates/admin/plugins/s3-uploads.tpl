@@ -7,7 +7,16 @@
 <pre><code>export AWS_ACCESS_KEY_ID="xxxxx"
 export AWS_SECRET_ACCESS_KEY="yyyyy"
 export S3_UPLOADS_BUCKET="zzzz"
+export S3_UPLOADS_HOST="host"
+export S3_UPLOADS_PATH="path"
 </code></pre>
+
+<p>
+Asset host and asset path are optional. You can leave these blank to default to the standard asset url - http://mybucket.s3.amazonaws.com/uuid.jpg.<br/>
+Asset host can be set to a custom asset host. For example, if set to cdn.mywebsite.com then the asset url is http://cdn.mywebsite.com/uuid.jpg.<br/>
+Asset path can be set to a custom asset path. For example, if set to /assets, then the asset url is http://mybucket.s3.amazonaws.com/assets/uuid.jpg.<br/>
+If both are asset host and path are set, then the url will be http://cdn.mywebsite.com/assets/uuid.jpg.
+</p>
 
 <h3>Instance meta-data</h3>
 <p>This plugin is compatible with the instance meta-data API, you'll need to setup role delegation for this to work. See the following links:</p>

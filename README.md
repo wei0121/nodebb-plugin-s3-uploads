@@ -29,7 +29,12 @@ For instance, for [talk.kano.me](http://talk.kano.me), we store the Bucket name 
 export AWS_ACCESS_KEY_ID="xxxxx"
 export AWS_SECRET_ACCESS_KEY="yyyyy"
 export S3_UPLOADS_BUCKET="zzzz"
+export S3_UPLOADS_HOST="host"
+export S3_UPLOADS_PATH="path"
 ```
+
+**NOTE:** Asset host is optional - If you do not specify an asset host, then the default asset host is `<bucket>.s3.amazonaws.com`.
+**NOTE:** Asset path is optional - If you do not specify an asset path, then the default asset path is `/`.
 
 ### Instance Meta-data
 
@@ -49,6 +54,8 @@ If you need help, create an [issue on Github](https://github.com/KanoComputing/n
 From the NodeBB Admin panel, you can configure the following settings to be stored in the Database:
 
 * `bucket` — The S3 bucket to upload into
+* `host` - The asset host (optional)
+* `path` - The asset path (optional)
 * `accessKeyId` — The AWS Access Key Id
 * `secretAccessKey` — The AWS Secret Access Key
 
