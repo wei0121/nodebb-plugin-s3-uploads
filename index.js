@@ -190,6 +190,42 @@ var AWS = require('aws-sdk'),
     }
   };
 
+  plugin.handleFileUpload = function (file, callback) {
+    if(!file || !file.path){
+      winston.error(file);
+      return callback(makeError("Invalid file data from plugin hook 'filter:uploadFile'"));
+    }
+
+    fs.readFile(file.path, putObject);
+
+    function putObject(err, buffer){
+      if(err) {
+        return callback(makeError(err));
+      }
+
+      var params = {
+        Bucket: settings.bucket,
+        ACL: "public-read",
+        Key: uuid() + path.extname(file.name),
+        Body: buffer,
+        ContentLength: buffer.length,
+        ContentType: mime.lookup(file.name)
+      };
+
+      S3().putObject(params, function(err){
+        if(err){
+          return callback(makeError(err));
+        }
+
+        callback(null, {
+          name: file.name,
+          // Use protocol-less urls so that both HTTP and HTTPS work:
+          url: "//" + params.Bucket + ".s3.amazonaws.com/" + params.Key
+        });
+      });
+    }
+  };
+
   var admin = plugin.admin =  {};
 
   admin.menu = function(headers, callback) {
