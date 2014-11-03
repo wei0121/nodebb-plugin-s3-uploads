@@ -249,10 +249,25 @@ var AWS = require('aws-sdk'),
         return callback(makeError(err));
       }
 
+      var s3Path;
+      if (settings.path && 0 < settings.path.length) {
+        s3Path = settings.path;
+
+        if (!s3Path.match(/\/$/)) {
+          // Add trailing slash
+          s3Path = s3Path + '/';
+        }
+      }
+      else {
+        s3Path = '/';
+      }
+
+      var s3KeyPath = s3Path.replace(/^\//, ''); // S3 Key Path should not start with slash.
+
       var params = {
         Bucket: settings.bucket,
         ACL: "public-read",
-        Key: uuid() + path.extname(file.name),
+        Key: s3KeyPath + uuid() + path.extname(file.name),
         Body: buffer,
         ContentLength: buffer.length,
         ContentType: mime.lookup(file.name)
@@ -263,10 +278,23 @@ var AWS = require('aws-sdk'),
           return callback(makeError(err));
         }
 
+        var s3Host;
+        if (settings.host && 0 < settings.host.length) {
+          s3Host = settings.host;
+
+          if (!s3Host.match(/\/$/)) {
+            // Add trailing slash
+            s3Host = s3Host + '/';
+          }
+        }
+        else {
+          s3Host = params.Bucket + ".s3.amazonaws.com/";
+        }
+
         callback(null, {
           name: file.name,
           // Use protocol-less urls so that both HTTP and HTTPS work:
-          url: "//" + params.Bucket + ".s3.amazonaws.com/" + params.Key
+          url: "//" + s3Host + params.Key
         });
       });
     }
