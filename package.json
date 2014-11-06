@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/KanoComputing/nodebb-plugin-s3-uploads.git"
+    "url": "https://github.com/joe1chen/nodebb-plugin-s3-uploads.git"
   },
   "keywords": [
     "nodebb",
@@ -19,11 +19,12 @@
   ],
   "author": "Micheil Smith <micheil@kano.me>",
   "contributors": [
-    "Barış Soner Uşaklı <barisusakli@gmail.com>"
+    "Barış Soner Uşaklı <barisusakli@gmail.com>",
+    "Joseph Chen <joseph.chen@gmail.com>"
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/KanoComputing/nodebb-plugin-s3-uploads/issues"
+    "url": "https://github.com/joe1chen/nodebb-plugin-s3-uploads/issues"
   },
   "dependencies": {
     "aws-sdk": "~2.0.0-rc9",

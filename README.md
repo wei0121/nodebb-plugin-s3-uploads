@@ -1,6 +1,6 @@
 # NodeBB S3 Uploads Plugin
 
-[![Dependency Status](https://david-dm.org/kanocomputing/nodebb-plugin-s3-uploads.png)](https://david-dm.org/kanocomputing/nodebb-plugin-s3-uploads)
+[![Dependency Status](https://david-dm.org/joe1chen/nodebb-plugin-s3-uploads.png)](https://david-dm.org/joe1chen/nodebb-plugin-s3-uploads)
 
 
 | Dependency     | Version Requirement     |
