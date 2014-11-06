@@ -27,7 +27,7 @@
     "url": "https://github.com/joe1chen/nodebb-plugin-s3-uploads/issues"
   },
   "dependencies": {
-    "aws-sdk": "~2.0.0-rc9",
+    "aws-sdk": "^2.0.23",
     "uuid": "~1.4.1",
     "mime": "~1.2.11"
   }
