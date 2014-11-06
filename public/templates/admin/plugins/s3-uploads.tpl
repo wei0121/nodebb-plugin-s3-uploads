@@ -7,7 +7,16 @@
 <pre><code>export AWS_ACCESS_KEY_ID="xxxxx"
 export AWS_SECRET_ACCESS_KEY="yyyyy"
 export S3_UPLOADS_BUCKET="zzzz"
+export S3_UPLOADS_HOST="host"
+export S3_UPLOADS_PATH="path"
 </code></pre>
+
+<p>
+Asset host and asset path are optional. You can leave these blank to default to the standard asset url - http://mybucket.s3.amazonaws.com/uuid.jpg.<br/>
+Asset host can be set to a custom asset host. For example, if set to cdn.mywebsite.com then the asset url is http://cdn.mywebsite.com/uuid.jpg.<br/>
+Asset path can be set to a custom asset path. For example, if set to /assets, then the asset url is http://mybucket.s3.amazonaws.com/assets/uuid.jpg.<br/>
+If both are asset host and path are set, then the url will be http://cdn.mywebsite.com/assets/uuid.jpg.
+</p>
 
 <h3>Instance meta-data</h3>
 <p>This plugin is compatible with the instance meta-data API, you'll need to setup role delegation for this to work. See the following links:</p>
@@ -23,8 +32,15 @@ export S3_UPLOADS_BUCKET="zzzz"
 
 <h3>Database Stored configuration:</h3>
 <form id="s3-upload-bucket">
-  <label for="bucket">Bucket</label><br />
-  <input type="text" name="bucket" value="{bucket}" title="S3 Bucket" class="form-control input-lg" placeholder="S3 Bucket"><br />
+  <label for="s3bucket">Bucket</label><br />
+  <input type="text" id="s3bucket" name="bucket" value="{bucket}" title="S3 Bucket" class="form-control input-lg" placeholder="S3 Bucket"><br />
+
+  <label for="s3host">Host</label><br />
+  <input type="text" id="s3host" name="host" value="{host}" title="S3 Host" class="form-control input-lg" placeholder="website.com"><br />
+
+  <label for="s3path">Path</label><br />
+  <input type="text" id="s3path" name="path" value="{path}" title="S3 Path" class="form-control input-lg" placeholder="/assets"><br />
+
   <button class="btn btn-primary" type="submit">Save</button>
 </form>
 
@@ -42,7 +58,7 @@ export S3_UPLOADS_BUCKET="zzzz"
 <script>
   $("#s3-upload-bucket").on("submit", function(e){
     e.preventDefault();
-    save("bucket", this);
+    save("s3settings", this);
   });
 
   $("#s3-upload-credentials").on("submit", function(e){

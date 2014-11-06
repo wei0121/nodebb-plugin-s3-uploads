@@ -17,7 +17,9 @@ var AWS = require('aws-sdk'),
   var settings = {
     "accessKeyId": false,
     "secretAccessKey": false,
-    "bucket": process.env.S3_UPLOADS_BUCKET || undefined
+    "bucket": process.env.S3_UPLOADS_BUCKET || undefined,
+    "host": process.env.S3_UPLOADS_HOST || undefined,
+    "path": process.env.S3_UPLOADS_PATH || undefined
   };
 
   var accessKeyIdFromDb = false;
@@ -56,6 +58,18 @@ var AWS = require('aws-sdk'),
         settings.bucket = process.env.S3_UPLOADS_BUCKET || "";
       }else{
         settings.bucket = newSettings.bucket;
+      }
+
+      if(!newSettings.host){
+        settings.host = process.env.S3_UPLOADS_HOST || "";
+      }else{
+        settings.host = newSettings.host;
+      }
+
+      if(!newSettings.path){
+        settings.path = process.env.S3_UPLOADS_PATH || "";
+      }else{
+        settings.path = newSettings.path;
       }
 
       if(settings.accessKeyId && settings.secretAccessKey){
@@ -107,7 +121,7 @@ var AWS = require('aws-sdk'),
       app.get(adminRoute, middleware.admin.buildHeader, renderAdmin);
       app.get('/api' + adminRoute, renderAdmin);
 
-      app.post('/api' + adminRoute + '/bucket', bucket);
+      app.post('/api' + adminRoute + '/s3settings', s3settings);
       app.post('/api' + adminRoute + '/credentials', credentials);
 
       callback();
@@ -117,6 +131,8 @@ var AWS = require('aws-sdk'),
   function renderAdmin(req, res) {
     var data = {
       bucket: settings.bucket,
+      host: settings.host,
+      path: settings.path,
       accessKeyId: (accessKeyIdFromDb && settings.accessKeyId) || '',
       secretAccessKey: (accessKeyIdFromDb && settings.secretAccessKey) || ''
     };
@@ -124,10 +140,12 @@ var AWS = require('aws-sdk'),
     res.render('admin/plugins/s3-uploads', data);
   }
 
-  function bucket(req, res, next) {
+  function s3settings(req, res, next) {
     var data = req.body;
     var newSettings = {
-      bucket: data.bucket || ''
+      bucket: data.bucket || '',
+      host: data.host || '',
+      path: data.path || ''
     };
 
     saveSettings(newSettings, res, next);
@@ -167,10 +185,25 @@ var AWS = require('aws-sdk'),
         return callback(makeError(err));
       }
 
+      var s3Path;
+      if (settings.path && 0 < settings.path.length) {
+        s3Path = settings.path;
+
+        if (!s3Path.match(/\/$/)) {
+          // Add trailing slash
+          s3Path = s3Path + '/';
+        }
+      }
+      else {
+        s3Path = '/';
+      }
+
+      var s3KeyPath = s3Path.replace(/^\//, ''); // S3 Key Path should not start with slash.
+
       var params = {
         Bucket: settings.bucket,
         ACL: "public-read",
-        Key: uuid() + path.extname(image.name),
+        Key: s3KeyPath + uuid() + path.extname(image.name),
         Body: buffer,
         ContentLength: buffer.length,
         ContentType: mime.lookup(image.name)
@@ -181,10 +214,23 @@ var AWS = require('aws-sdk'),
           return callback(makeError(err));
         }
 
+        var s3Host;
+        if (settings.host && 0 < settings.host.length) {
+          s3Host = settings.host;
+
+          if (!s3Host.match(/\/$/)) {
+            // Add trailing slash
+            s3Host = s3Host + '/';
+          }
+        }
+        else {
+          s3Host = params.Bucket + ".s3.amazonaws.com/";
+        }
+
         callback(null, {
           name: image.name,
           // Use protocol-less urls so that both HTTP and HTTPS work:
-          url: "//" + params.Bucket + ".s3.amazonaws.com/" + params.Key
+          url: "//" + s3Host + params.Key
         });
       });
     }
@@ -203,10 +249,25 @@ var AWS = require('aws-sdk'),
         return callback(makeError(err));
       }
 
+      var s3Path;
+      if (settings.path && 0 < settings.path.length) {
+        s3Path = settings.path;
+
+        if (!s3Path.match(/\/$/)) {
+          // Add trailing slash
+          s3Path = s3Path + '/';
+        }
+      }
+      else {
+        s3Path = '/';
+      }
+
+      var s3KeyPath = s3Path.replace(/^\//, ''); // S3 Key Path should not start with slash.
+
       var params = {
         Bucket: settings.bucket,
         ACL: "public-read",
-        Key: uuid() + path.extname(file.name),
+        Key: s3KeyPath + uuid() + path.extname(file.name),
         Body: buffer,
         ContentLength: buffer.length,
         ContentType: mime.lookup(file.name)
@@ -217,10 +278,23 @@ var AWS = require('aws-sdk'),
           return callback(makeError(err));
         }
 
+        var s3Host;
+        if (settings.host && 0 < settings.host.length) {
+          s3Host = settings.host;
+
+          if (!s3Host.match(/\/$/)) {
+            // Add trailing slash
+            s3Host = s3Host + '/';
+          }
+        }
+        else {
+          s3Host = params.Bucket + ".s3.amazonaws.com/";
+        }
+
         callback(null, {
           name: file.name,
           // Use protocol-less urls so that both HTTP and HTTPS work:
-          url: "//" + params.Bucket + ".s3.amazonaws.com/" + params.Key
+          url: "//" + s3Host + params.Key
         });
       });
     }
