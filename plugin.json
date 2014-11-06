@@ -14,7 +14,8 @@
         { "hook": "action:plugin.deactivate", "method": "deactivate"},
 
         { "hook": "filter:admin.header.build", "method": "admin.menu"},
-        { "hook": "filter:uploadImage", "method": "handleUpload", "priority": 6 }
+        { "hook": "filter:uploadImage", "method": "handleUpload", "priority": 6 },
+        { "hook": "filter:uploadFile", "method": "handleFileUpload", "priority": 6 }
     ],
     "minver": "0.4.0",
     "templates": "./public/templates"
