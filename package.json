@@ -26,6 +26,9 @@
   "bugs": {
     "url": "https://github.com/joe1chen/nodebb-plugin-s3-uploads/issues"
   },
+  "nbbpm": {
+    "compatibility": "^0.6.0"
+  },
   "dependencies": {
     "aws-sdk": "^2.0.23",
     "uuid": "~1.4.1",
