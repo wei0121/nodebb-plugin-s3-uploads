@@ -8,6 +8,7 @@ var AWS = require('aws-sdk'),
     path = require('path'),
     winston = module.parent.require('winston'),
     gm = module.parent.require('gm').subClass({imageMagick: true}),
+    meta = module.parent.require('./meta'),
     db = module.parent.require('./database');
 
 (function(plugin) {
@@ -193,9 +194,11 @@ var AWS = require('aws-sdk'),
     else {
       var filename = image.url.split('/').pop();
 
+      var imageDimension = parseInt(meta.config.profileImageDimension, 10) || 128;
+
       // Resize image.
       gm(request(image.url), filename)
-        .resize("128^", "128^") // TODO Get sizes
+        .resize(imageDimension + "^", imageDimension + "^")
         .stream(function(err, stdout, stderr) {
           if (err) {
             return callback(makeError(err));
