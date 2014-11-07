@@ -4,11 +4,11 @@ var AWS = require('aws-sdk'),
     mime = require("mime"),
     uuid = require("uuid").v4,
     fs = require('fs'),
+    request = require('request'),
     path = require('path'),
-
-  winston = module.parent.require('winston'),
-  db = module.parent.require('./database');
-
+    winston = module.parent.require('winston'),
+    gm = module.parent.require('gm').subClass({imageMagick: true}),
+    db = module.parent.require('./database');
 
 (function(plugin) {
   "use strict";
@@ -172,133 +172,119 @@ var AWS = require('aws-sdk'),
     });
   }
 
-  plugin.handleUpload = function (image, callback) {
-    if(!image || !image.path){
-      winston.error(image);
-      return callback(makeError("Invalid image data from plugin hook 'filter:uploadImage'"));
+  plugin.uploadImage = function (data, callback) {
+    var image = data.image;
+
+    if (!image) {
+      return callback(new Error('invalid image'));
     }
 
-    fs.readFile(image.path, putObject);
+    var type = image.url ? 'url' : 'file';
 
-    function putObject(err, buffer){
-      if(err) {
-        return callback(makeError(err));
+    if (type === 'file') {
+      if (!image.path) {
+        return callback(new Error('invalid image path'));
       }
 
-      var s3Path;
-      if (settings.path && 0 < settings.path.length) {
-        s3Path = settings.path;
-
-        if (!s3Path.match(/\/$/)) {
-          // Add trailing slash
-          s3Path = s3Path + '/';
-        }
-      }
-      else {
-        s3Path = '/';
-      }
-
-      var s3KeyPath = s3Path.replace(/^\//, ''); // S3 Key Path should not start with slash.
-
-      var params = {
-        Bucket: settings.bucket,
-        ACL: "public-read",
-        Key: s3KeyPath + uuid() + path.extname(image.name),
-        Body: buffer,
-        ContentLength: buffer.length,
-        ContentType: mime.lookup(image.name)
-      };
-
-      S3().putObject(params, function(err){
-        if(err){
-          return callback(makeError(err));
-        }
-
-        var s3Host;
-        if (settings.host && 0 < settings.host.length) {
-          s3Host = settings.host;
-
-          if (!s3Host.match(/\/$/)) {
-            // Add trailing slash
-            s3Host = s3Host + '/';
-          }
-        }
-        else {
-          s3Host = params.Bucket + ".s3.amazonaws.com/";
-        }
-
-        callback(null, {
-          name: image.name,
-          // Use protocol-less urls so that both HTTP and HTTPS work:
-          url: "//" + s3Host + params.Key
-        });
+      fs.readFile(image.path, function(err, buffer) {
+        uploadToS3(image.name, err, buffer, callback);
       });
+    }
+    else {
+      var filename = image.url.split('/').pop();
+
+      // Resize image.
+      gm(request(image.url), filename)
+        .resize("128^", "128^") // TODO Get sizes
+        .stream(function(err, stdout, stderr) {
+          if (err) {
+            return callback(makeError(err));
+          }
+
+          // This is sort of a hack - We're going to stream the gm output to a buffer and then upload.
+          // See https://github.com/aws/aws-sdk-js/issues/94
+          var buf = new Buffer(0);
+          stdout.on('data', function(d) {
+            buf = Buffer.concat([buf, d]);
+          });
+          stdout.on('end', function() {
+            uploadToS3(filename, null, buf, callback);
+          });
+        }
+      );
     }
   };
 
-  plugin.handleFileUpload = function (file, callback) {
-    if(!file || !file.path){
-      winston.error(file);
-      return callback(makeError("Invalid file data from plugin hook 'filter:uploadFile'"));
+  plugin.uploadFile = function (data, callback) {
+    var file = data.file;
+
+    if (!file) {
+      return callback(new Error('invalid file'));
     }
 
-    fs.readFile(file.path, putObject);
+    if (!file.path) {
+      return callback(new Error('invalid file path'));
+    }
 
-    function putObject(err, buffer){
-      if(err) {
+    fs.readFile(file.path, function(err, buffer) {
+      uploadToS3(file.name, err, buffer, callback);
+    });
+  };
+
+  function uploadToS3(filename, err, buffer, callback) {
+    if (err) {
+      return callback(makeError(err));
+    }
+
+    var s3Path;
+    if (settings.path && 0 < settings.path.length) {
+      s3Path = settings.path;
+
+      if (!s3Path.match(/\/$/)) {
+        // Add trailing slash
+        s3Path = s3Path + '/';
+      }
+    }
+    else {
+      s3Path = '/';
+    }
+
+    var s3KeyPath = s3Path.replace(/^\//, ''); // S3 Key Path should not start with slash.
+
+    var params = {
+      Bucket: settings.bucket,
+      ACL: "public-read",
+      Key: s3KeyPath + uuid() + path.extname(filename),
+      Body: buffer,
+      ContentLength: buffer.length,
+      ContentType: mime.lookup(filename)
+    };
+
+    S3().putObject(params, function(err) {
+      if (err) {
         return callback(makeError(err));
       }
 
-      var s3Path;
-      if (settings.path && 0 < settings.path.length) {
-        s3Path = settings.path;
+      var s3Host;
+      if (settings.host && 0 < settings.host.length) {
+        s3Host = settings.host;
 
-        if (!s3Path.match(/\/$/)) {
+        if (!s3Host.match(/\/$/)) {
           // Add trailing slash
-          s3Path = s3Path + '/';
+          s3Host = s3Host + '/';
         }
       }
       else {
-        s3Path = '/';
+        s3Host = params.Bucket + ".s3.amazonaws.com/";
       }
 
-      var s3KeyPath = s3Path.replace(/^\//, ''); // S3 Key Path should not start with slash.
-
-      var params = {
-        Bucket: settings.bucket,
-        ACL: "public-read",
-        Key: s3KeyPath + uuid() + path.extname(file.name),
-        Body: buffer,
-        ContentLength: buffer.length,
-        ContentType: mime.lookup(file.name)
-      };
-
-      S3().putObject(params, function(err){
-        if(err){
-          return callback(makeError(err));
-        }
-
-        var s3Host;
-        if (settings.host && 0 < settings.host.length) {
-          s3Host = settings.host;
-
-          if (!s3Host.match(/\/$/)) {
-            // Add trailing slash
-            s3Host = s3Host + '/';
-          }
-        }
-        else {
-          s3Host = params.Bucket + ".s3.amazonaws.com/";
-        }
-
-        callback(null, {
-          name: file.name,
-          // Use protocol-less urls so that both HTTP and HTTPS work:
-          url: "//" + s3Host + params.Key
-        });
+      callback(null, {
+        name: filename,
+        // Use protocol-less urls so that both HTTP and HTTPS work:
+        url: "//" + s3Host + params.Key
       });
-    }
-  };
+    });
+  }
 
   var admin = plugin.admin =  {};
 
