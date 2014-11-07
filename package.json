@@ -1,6 +1,6 @@
 {
   "name": "nodebb-plugin-s3-uploads",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "A plugin for NodeBB to take file uploads and store them on S3",
   "main": "index.js",
   "scripts": {
@@ -25,6 +25,9 @@
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/joe1chen/nodebb-plugin-s3-uploads/issues"
+  },
+  "nbbpm": {
+    "compatibility": "^0.6.0"
   },
   "dependencies": {
     "aws-sdk": "^2.0.23",
