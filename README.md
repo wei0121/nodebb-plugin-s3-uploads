@@ -3,9 +3,10 @@
 [![Dependency Status](https://david-dm.org/joe1chen/nodebb-plugin-s3-uploads.png)](https://david-dm.org/joe1chen/nodebb-plugin-s3-uploads)
 
 
-| Dependency     | Version Requirement     |
-| -------------- |:-----------------------:|
-| NodeBB         | >= 0.3.2 or [a909a253](https://github.com/designcreateplay/NodeBB/commit/a909a253931c20427c14c777c1bb6629a79d449d) |
+| Plugin Version | Dependency     | Version Requirement     |
+| ---------------| -------------- |:-----------------------:|
+| 0.2.x          | NodeBB         | <= 0.5.3 and >= 0.3.2 |
+| 0.3.x          | NodeBB         | >= 0.6.0 |
 
 A plugin for NodeBB to take file uploads and store them on S3, uses the `filter:uploadImage` hook in NodeBB. 
 
