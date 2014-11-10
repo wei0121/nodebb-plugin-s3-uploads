@@ -113,17 +113,17 @@ var AWS = require('aws-sdk'),
     S3Conn = null;
   };
 
-  plugin.load = function(app, middleware, controllers, callback){
+  plugin.load = function(params, callback){
     fetchSettings(function(err) {
       if (err) {
         return winston.error(err.message);
       }
 
-      app.get(adminRoute, middleware.admin.buildHeader, renderAdmin);
-      app.get('/api' + adminRoute, renderAdmin);
+      params.router.get(adminRoute, params.middleware.applyCSRF, params.middleware.admin.buildHeader, renderAdmin);
+      params.router.get('/api' + adminRoute, params.middleware.applyCSRF, renderAdmin);
 
-      app.post('/api' + adminRoute + '/s3settings', s3settings);
-      app.post('/api' + adminRoute + '/credentials', credentials);
+      params.router.post('/api' + adminRoute + '/s3settings', params.middleware.applyCSRF, s3settings);
+      params.router.post('/api' + adminRoute + '/credentials', params.middleware.applyCSRF, credentials);
 
       callback();
     });
