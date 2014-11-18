@@ -122,8 +122,8 @@ var AWS = require('aws-sdk'),
       params.router.get(adminRoute, params.middleware.applyCSRF, params.middleware.admin.buildHeader, renderAdmin);
       params.router.get('/api' + adminRoute, params.middleware.applyCSRF, renderAdmin);
 
-      params.router.post('/api' + adminRoute + '/s3settings', params.middleware.applyCSRF, s3settings);
-      params.router.post('/api' + adminRoute + '/credentials', params.middleware.applyCSRF, credentials);
+      params.router.post('/api' + adminRoute + '/s3settings', s3settings);
+      params.router.post('/api' + adminRoute + '/credentials', credentials);
 
       callback();
     });

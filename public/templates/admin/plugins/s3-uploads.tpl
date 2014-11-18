@@ -84,9 +84,11 @@ If both are asset host and path are set, then the url will be http://cdn.mywebsi
 
       $.post('/api/admin/plugins/s3-uploads/' + type, data).done(function (response) {
         if (response) {
+          ajaxify.refresh();
           app.alertSuccess(response);
         }
       }).fail(function (jqXHR, textStatus, errorThrown) {
+        ajaxify.refresh();
         app.alertError(jqXHR.responseJSON ? jqXHR.responseJSON.error : 'Error saving!');
       });
     }
