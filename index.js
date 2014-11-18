@@ -130,12 +130,16 @@ var AWS = require('aws-sdk'),
   };
 
   function renderAdmin(req, res) {
+    // Regenerate csrf token
+    var token = req.csrfToken();
+
     var data = {
       bucket: settings.bucket,
       host: settings.host,
       path: settings.path,
       accessKeyId: (accessKeyIdFromDb && settings.accessKeyId) || '',
-      secretAccessKey: (accessKeyIdFromDb && settings.secretAccessKey) || ''
+      secretAccessKey: (accessKeyIdFromDb && settings.secretAccessKey) || '',
+      csrf: token
     };
 
     res.render('admin/plugins/s3-uploads', data);
