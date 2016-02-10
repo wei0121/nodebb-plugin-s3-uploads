@@ -18,8 +18,9 @@ var AWS = require('aws-sdk'),
   var settings = {
     "accessKeyId": false,
     "secretAccessKey": false,
+    "region": process.env.AWS_DEFAULT_REGION || 'us-east-1',
     "bucket": process.env.S3_UPLOADS_BUCKET || undefined,
-    "host": process.env.S3_UPLOADS_HOST || undefined,
+    "host": process.env.S3_UPLOADS_HOST || 's3.amazonaws.com',
     "path": process.env.S3_UPLOADS_PATH || undefined
   };
 
@@ -80,6 +81,12 @@ var AWS = require('aws-sdk'),
         });
       }
 
+      if (settings.region) {
+        AWS.config.update({
+          region: settings.region
+        });
+      }    
+        
       if (typeof callback === 'function') {
         callback();
       }
@@ -137,6 +144,7 @@ var AWS = require('aws-sdk'),
       bucket: settings.bucket,
       host: settings.host,
       path: settings.path,
+      region: settings.region,
       accessKeyId: (accessKeyIdFromDb && settings.accessKeyId) || '',
       secretAccessKey: (accessKeyIdFromDb && settings.secretAccessKey) || '',
       csrf: token
@@ -150,7 +158,8 @@ var AWS = require('aws-sdk'),
     var newSettings = {
       bucket: data.bucket || '',
       host: data.host || '',
-      path: data.path || ''
+      path: data.path || '',
+      region: data.region || ''
     };
 
     saveSettings(newSettings, res, next);
@@ -266,29 +275,21 @@ var AWS = require('aws-sdk'),
       ContentLength: buffer.length,
       ContentType: mime.lookup(filename)
     };
-
+      
     S3().putObject(params, function(err) {
       if (err) {
         return callback(makeError(err));
       }
 
-      var s3Host;
+      var host = 's3.amazonaws.com';
       if (settings.host && 0 < settings.host.length) {
-        s3Host = settings.host;
+        host = settings.host;
+      }   
 
-        if (!s3Host.match(/\/$/)) {
-          // Add trailing slash
-          s3Host = s3Host + '/';
-        }
-      }
-      else {
-        s3Host = params.Bucket + ".s3.amazonaws.com/";
-      }
-
-      callback(null, {
+        callback(null, {
         name: filename,
         // Use protocol-less urls so that both HTTP and HTTPS work:
-        url: "//" + s3Host + params.Key
+        url: '//' + host + '/' + params.Bucket + '/' + params.Key,
       });
     });
   }

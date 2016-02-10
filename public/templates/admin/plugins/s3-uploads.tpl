@@ -41,6 +41,9 @@ If both are asset host and path are set, then the url will be http://cdn.mywebsi
   <label for="s3path">Path</label><br />
   <input type="text" id="s3path" name="path" value="{path}" title="S3 Path" class="form-control input-lg" placeholder="/assets"><br />
 
+  <label for="aws-region">Region</label><br />
+  <input type="text" id="aws-region" name="region" value="{region}" title="AWS Region" class="form-control input-lg" placeholder="us-east-1"><br />
+    
   <button class="btn btn-primary" type="submit">Save</button>
 </form>
 
