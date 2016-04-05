@@ -1,12 +1,14 @@
 # NodeBB S3 Uploads Plugin
 
-[![Dependency Status](https://david-dm.org/joe1chen/nodebb-plugin-s3-uploads.png)](https://david-dm.org/joe1chen/nodebb-plugin-s3-uploads)
+[![Dependency Status](https://david-dm.org/LewisMcMahon/nodebb-plugin-s3-uploads.svg)](https://david-dm.org/LewisMcMahon/nodebb-plugin-s3-uploads)
 
+This plugin is a fork of [nodebb-plugin-s3-uploads](https://github.com/earthsenze/nodebb-plugin-s3-uploads) as it was no longer being maintained
 
 | Plugin Version | Dependency     | Version Requirement     |
 | ---------------| -------------- |:-----------------------:|
 | 0.2.x          | NodeBB         | <= 0.5.3 and >= 0.3.2 |
-| 0.3.x          | NodeBB         | >= 0.6.0 |
+| 0.3.3          | NodeBB         | >= 0.6.0 |
+| 0.3.4          | NodeBB         | >= 1.0.0 |
 
 A plugin for NodeBB to take file uploads and store them on S3, uses the `filter:uploadImage` hook in NodeBB. 
 
@@ -47,8 +49,6 @@ To use Instance Meta-data, you'll need to setup role delegation, see the followi
 * [STS Documentation: Delegation](http://docs.aws.amazon.com/STS/latest/UsingSTS/sts_delegate.html)
 
 **NOTE:** You'll need to pass in the `Bucket` as either an **Environment Variable** or as a **Database Backed Variable**.
-
-If you need help, create an [issue on Github](https://github.com/KanoComputing/nodebb-plugin-s3-uploads/issues/), and @[miksago](https://github.com/miksago) will try to help you out.
 
 ### Database Backed Variables
 
