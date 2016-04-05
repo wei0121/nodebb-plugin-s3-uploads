@@ -296,14 +296,14 @@ var AWS = require('aws-sdk'),
 
   var admin = plugin.admin =  {};
 
-  admin.menu = function(headers, callback) {
-    headers.plugins.push({
+  admin.menu = function(custom_header, callback) {
+    custom_header.plugins.push({
       "route": '/plugins/s3-uploads',
-      "icon": 'fa-picture-o',
+      "icon": 'fa-envelope-o',
       "name": 'S3 Uploads'
     });
 
-    callback(null, headers);
-  };
+    callback(null, custom_header);
+  }
 
 }(module.exports));

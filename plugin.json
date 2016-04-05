@@ -1,8 +1,8 @@
 {
-    "id": "nodebb-plugin-s3-uploads",
+    "id": "nodebb-plugin-s3-uploads-updated",
     "name": "S3 Uploads Plugin",
-    "description": "A plugin that takes file uploads and store them on S3",
-    "url": "https://github.com/joe1chen/nodebb-plugin-s3-uploads",
+    "description": "A plugin for NodeBB to take file uploads and store them on S3 updated for 1.0",
+    "url": "https://github.com/LewisMcMahon/nodebb-plugin-s3-uploads",
     "library": "./index.js",
     "staticDirs": {
         "s3": "public"
