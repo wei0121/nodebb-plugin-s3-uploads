@@ -1,14 +1,14 @@
 {
-  "name": "nodebb-plugin-s3-uploads",
+  "name": "nodebb-plugin-s3-uploads-updated",
   "version": "0.3.3",
-  "description": "A plugin for NodeBB to take file uploads and store them on S3",
+  "description": "A plugin for NodeBB to take file uploads and store them on S3 updated for 1.0",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/joe1chen/nodebb-plugin-s3-uploads.git"
+    "url": "https://github.com/LewisMcMahon/nodebb-plugin-s3-uploads.git"
   },
   "keywords": [
     "nodebb",
@@ -20,14 +20,15 @@
   "author": "Micheil Smith <micheil@kano.me>",
   "contributors": [
     "Barış Soner Uşaklı <barisusakli@gmail.com>",
-    "Joseph Chen <joseph.chen@gmail.com>"
+    "Joseph Chen <joseph.chen@gmail.com>",
+    "Lewis McMahon <lewis@lewismcmahon.co.uk>"
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/joe1chen/nodebb-plugin-s3-uploads/issues"
+    "url": "https://github.com/LewisMcMahon/nodebb-plugin-s3-uploads/issues"
   },
   "nbbpm": {
-    "compatibility": "^0.6.0"
+    "compatibility": "^1.0.0"
   },
   "dependencies": {
     "aws-sdk": "^2.0.23",
