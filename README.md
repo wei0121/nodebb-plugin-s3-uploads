@@ -4,6 +4,8 @@
 
 This plugin is a fork of [nodebb-plugin-s3-uploads](https://github.com/earthsenze/nodebb-plugin-s3-uploads) as it was no longer being maintained
 
+`npm install nodebb-plugin-s3-uploads-updated`
+
 | Plugin Version | Dependency     | Version Requirement     |
 | ---------------| -------------- |:-----------------------:|
 | 0.2.x          | NodeBB         | <= 0.5.3 and >= 0.3.2 |
