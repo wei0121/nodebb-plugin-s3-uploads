@@ -10,9 +10,12 @@ var AWS = require("aws-sdk"),
 	gm = require("gm"),
 	im = gm.subClass({imageMagick: true}),
 	meta = module.parent.require("./meta"),
-	db = module.parent.require("./database");
+	db = module.parent.require("./database"),
+	User = module.parent.require("./user"),
+	Search = module.parent.require("./search"),
+	async = require("async");
 
-var plugin = {}
+var plugin = {};
 
 "use strict";
 
@@ -140,7 +143,11 @@ plugin.load = function (params, callback) {
 		params.router.post("/api" + adminRoute + "/s3settings", s3settings);
 		params.router.post("/api" + adminRoute + "/credentials", credentials);
 
-		callback();
+		findFilesStillInUse(function () {
+			callback();
+		});
+
+		//5callback();
 	});
 };
 
@@ -221,21 +228,20 @@ plugin.uploadImage = function (data, callback) {
 		im(request(image.url), filename)
 			.resize(imageDimension + "^", imageDimension + "^")
 			.stream(function (err, stdout, stderr) {
-					if (err) {
-						return callback(makeError(err));
-					}
-
-					// This is sort of a hack - We"re going to stream the gm output to a buffer and then upload.
-					// See https://github.com/aws/aws-sdk-js/issues/94
-					var buf = new Buffer(0);
-					stdout.on("data", function (d) {
-						buf = Buffer.concat([buf, d]);
-					});
-					stdout.on("end", function () {
-						uploadToS3(filename, null, buf, callback);
-					});
+				if (err) {
+					return callback(makeError(err));
 				}
-			);
+
+				// This is sort of a hack - We"re going to stream the gm output to a buffer and then upload.
+				// See https://github.com/aws/aws-sdk-js/issues/94
+				var buf = new Buffer(0);
+				stdout.on("data", function (d) {
+					buf = Buffer.concat([buf, d]);
+				});
+				stdout.on("end", function () {
+					uploadToS3(filename, null, buf, callback);
+				});
+			});
 	}
 };
 
@@ -297,10 +303,49 @@ function uploadToS3(filename, err, buffer, callback) {
 		callback(null, {
 			name: filename,
 			// Use protocol-less urls so that both HTTP and HTTPS work:
-			url: "//" + host + "/" + params.Bucket + "/" + params.Key,
+			url: "//" + host + "/" + params.Bucket + "/" + params.Key
 		});
 	});
 }
+
+function findFilesStillInUse(callback){
+	var filesInUse = [];
+	
+	//get unbanned user images
+	User.search({query:"*",searchBy:"username"},function (err,data) {
+
+		async.each(data.users,function (entry,callback) {
+			if (!entry.banned){
+				var userPicture = entry.picture;
+				var userCover = "";
+				User.getUserFields(entry.uid,["cover:url"],function (err,userData) {
+					userCover = userData["cover:url"];
+					if (userPicture){
+						filesInUse.push(userPicture);
+					}
+					if (userCover){
+						filesInUse.push(userCover);
+					}
+					callback();
+				});
+			}
+		},function (err) {
+			if (err){
+				winston(err);
+				return callback(err,null);
+			}
+
+			//get files from posts
+			Search.search ({searchIn:"posts",query:"*"},function (err,data) {
+				console.log(err);
+				console.log(data);
+			});
+
+			return callback(null,filesInUse);
+		});
+	});
+}
+
 
 var admin = plugin.admin = {};
 
