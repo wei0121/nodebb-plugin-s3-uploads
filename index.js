@@ -76,6 +76,12 @@ function fetchSettings(callback) {
 			settings.path = newSettings.path;
 		}
 
+		if (!newSettings.region) {
+			settings.region = process.env.AWS_DEFAULT_REGION || "";
+		} else {
+			settings.region = newSettings.region;
+		}
+
 		if (settings.accessKeyId && settings.secretAccessKey) {
 			AWS.config.update({
 				accessKeyId: settings.accessKeyId,
