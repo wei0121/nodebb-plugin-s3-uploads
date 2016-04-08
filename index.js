@@ -1,310 +1,311 @@
 var Package = require("./package.json");
 
-var AWS = require('aws-sdk'),
-    mime = require("mime"),
-    uuid = require("uuid").v4,
-    fs = require('fs'),
-    request = require('request'),
-    path = require('path'),
-    winston = module.parent.require('winston'),
-    gm = require('gm'),
-    im = gm.subClass({imageMagick: true}),
-    meta = module.parent.require('./meta'),
-    db = module.parent.require('./database');
+var AWS = require("aws-sdk"),
+	mime = require("mime"),
+	uuid = require("uuid").v4,
+	fs = require("fs"),
+	request = require("request"),
+	path = require("path"),
+	winston = module.parent.require("winston"),
+	gm = require("gm"),
+	im = gm.subClass({imageMagick: true}),
+	meta = module.parent.require("./meta"),
+	db = module.parent.require("./database");
 
-(function(plugin) {
-  "use strict";
+var plugin = {}
 
-  var S3Conn = null;
-  var settings = {
-    "accessKeyId": false,
-    "secretAccessKey": false,
-    "region": process.env.AWS_DEFAULT_REGION || 'us-east-1',
-    "bucket": process.env.S3_UPLOADS_BUCKET || undefined,
-    "host": process.env.S3_UPLOADS_HOST || 's3.amazonaws.com',
-    "path": process.env.S3_UPLOADS_PATH || undefined
-  };
+"use strict";
 
-  var accessKeyIdFromDb = false;
-  var secretAccessKeyFromDb = false;
+var S3Conn = null;
+var settings = {
+	"accessKeyId": false,
+	"secretAccessKey": false,
+	"region": process.env.AWS_DEFAULT_REGION || "us-east-1",
+	"bucket": process.env.S3_UPLOADS_BUCKET || undefined,
+	"host": process.env.S3_UPLOADS_HOST || "s3.amazonaws.com",
+	"path": process.env.S3_UPLOADS_PATH || undefined
+};
 
-  var adminRoute = '/admin/plugins/s3-uploads';
+var accessKeyIdFromDb = false;
+var secretAccessKeyFromDb = false;
 
-  function fetchSettings(callback){
-    db.getObjectFields(Package.name, Object.keys(settings), function(err, newSettings){
-      if (err) {
-        winston.error(err.message);
-        if (typeof callback === 'function') {
-          callback(err);
-        }
-        return;
-      }
+var adminRoute = "/admin/plugins/s3-uploads";
 
-      accessKeyIdFromDb = false;
-      secretAccessKeyFromDb = false;
+function fetchSettings(callback) {
+	db.getObjectFields(Package.name, Object.keys(settings), function (err, newSettings) {
+		if (err) {
+			winston.error(err.message);
+			if (typeof callback === "function") {
+				callback(err);
+			}
+			return;
+		}
 
-      if(newSettings.accessKeyId){
-        settings.accessKeyId = newSettings.accessKeyId;
-        accessKeyIdFromDb = true;
-      }else{
-        settings.accessKeyId = false;
-      }
+		accessKeyIdFromDb = false;
+		secretAccessKeyFromDb = false;
 
-      if(newSettings.secretAccessKey){
-        settings.secretAccessKey = newSettings.secretAccessKey;
-        secretAccessKeyFromDb = false;
-      }else{
-        settings.secretAccessKey = false;
-      }
+		if (newSettings.accessKeyId) {
+			settings.accessKeyId = newSettings.accessKeyId;
+			accessKeyIdFromDb = true;
+		} else {
+			settings.accessKeyId = false;
+		}
 
-      if(!newSettings.bucket){
-        settings.bucket = process.env.S3_UPLOADS_BUCKET || "";
-      }else{
-        settings.bucket = newSettings.bucket;
-      }
+		if (newSettings.secretAccessKey) {
+			settings.secretAccessKey = newSettings.secretAccessKey;
+			secretAccessKeyFromDb = false;
+		} else {
+			settings.secretAccessKey = false;
+		}
 
-      if(!newSettings.host){
-        settings.host = process.env.S3_UPLOADS_HOST || "";
-      }else{
-        settings.host = newSettings.host;
-      }
+		if (!newSettings.bucket) {
+			settings.bucket = process.env.S3_UPLOADS_BUCKET || "";
+		} else {
+			settings.bucket = newSettings.bucket;
+		}
 
-      if(!newSettings.path){
-        settings.path = process.env.S3_UPLOADS_PATH || "";
-      }else{
-        settings.path = newSettings.path;
-      }
+		if (!newSettings.host) {
+			settings.host = process.env.S3_UPLOADS_HOST || "";
+		} else {
+			settings.host = newSettings.host;
+		}
 
-      if(settings.accessKeyId && settings.secretAccessKey){
-        AWS.config.update({
-          accessKeyId: settings.accessKeyId,
-          secretAccessKey: settings.secretAccessKey
-        });
-      }
+		if (!newSettings.path) {
+			settings.path = process.env.S3_UPLOADS_PATH || "";
+		} else {
+			settings.path = newSettings.path;
+		}
 
-      if (settings.region) {
-        AWS.config.update({
-          region: settings.region
-        });
-      }    
-        
-      if (typeof callback === 'function') {
-        callback();
-      }
-    });
-  }
+		if (settings.accessKeyId && settings.secretAccessKey) {
+			AWS.config.update({
+				accessKeyId: settings.accessKeyId,
+				secretAccessKey: settings.secretAccessKey
+			});
+		}
 
-  function S3(){
-    if(!S3Conn){
-      S3Conn = new AWS.S3();
-    }
+		if (settings.region) {
+			AWS.config.update({
+				region: settings.region
+			});
+		}
 
-    return S3Conn;
-  }
+		if (typeof callback === "function") {
+			callback();
+		}
+	});
+}
 
-  function makeError(err){
-    if(err instanceof Error){
-      err.message = Package.name + " :: " + err.message;
-    }else{
-      err = new Error(Package.name + " :: " + err);
-    }
+function S3() {
+	if (!S3Conn) {
+		S3Conn = new AWS.S3();
+	}
 
-    winston.error(err.message);
-    return err;
-  }
+	return S3Conn;
+}
 
-  plugin.activate = function(){
-    fetchSettings();
-  };
+function makeError(err) {
+	if (err instanceof Error) {
+		err.message = Package.name + " :: " + err.message;
+	} else {
+		err = new Error(Package.name + " :: " + err);
+	}
 
-  plugin.deactivate = function(){
-    S3Conn = null;
-  };
+	winston.error(err.message);
+	return err;
+}
 
-  plugin.load = function(params, callback){
-    fetchSettings(function(err) {
-      if (err) {
-        return winston.error(err.message);
-      }
+plugin.activate = function () {
+	fetchSettings();
+};
 
-      params.router.get(adminRoute, params.middleware.applyCSRF, params.middleware.admin.buildHeader, renderAdmin);
-      params.router.get('/api' + adminRoute, params.middleware.applyCSRF, renderAdmin);
+plugin.deactivate = function () {
+	S3Conn = null;
+};
 
-      params.router.post('/api' + adminRoute + '/s3settings', s3settings);
-      params.router.post('/api' + adminRoute + '/credentials', credentials);
+plugin.load = function (params, callback) {
+	fetchSettings(function (err) {
+		if (err) {
+			return winston.error(err.message);
+		}
 
-      callback();
-    });
-  };
+		params.router.get(adminRoute, params.middleware.applyCSRF, params.middleware.admin.buildHeader, renderAdmin);
+		params.router.get("/api" + adminRoute, params.middleware.applyCSRF, renderAdmin);
 
-  function renderAdmin(req, res) {
-    // Regenerate csrf token
-    var token = req.csrfToken();
+		params.router.post("/api" + adminRoute + "/s3settings", s3settings);
+		params.router.post("/api" + adminRoute + "/credentials", credentials);
 
-    var data = {
-      bucket: settings.bucket,
-      host: settings.host,
-      path: settings.path,
-      region: settings.region,
-      accessKeyId: (accessKeyIdFromDb && settings.accessKeyId) || '',
-      secretAccessKey: (accessKeyIdFromDb && settings.secretAccessKey) || '',
-      csrf: token
-    };
+		callback();
+	});
+};
 
-    res.render('admin/plugins/s3-uploads', data);
-  }
+function renderAdmin(req, res) {
+	// Regenerate csrf token
+	var token = req.csrfToken();
 
-  function s3settings(req, res, next) {
-    var data = req.body;
-    var newSettings = {
-      bucket: data.bucket || '',
-      host: data.host || '',
-      path: data.path || '',
-      region: data.region || ''
-    };
+	var data = {
+		bucket: settings.bucket,
+		host: settings.host,
+		path: settings.path,
+		region: settings.region,
+		accessKeyId: (accessKeyIdFromDb && settings.accessKeyId) || "",
+		secretAccessKey: (accessKeyIdFromDb && settings.secretAccessKey) || "",
+		csrf: token
+	};
 
-    saveSettings(newSettings, res, next);
-  }
+	res.render("admin/plugins/s3-uploads", data);
+}
 
-  function credentials(req, res, next) {
-    var data = req.body;
-    var newSettings = {
-      accessKeyId: data.accessKeyId || '',
-      secretAccessKey: data.secretAccessKey || ''
-    };
+function s3settings(req, res, next) {
+	var data = req.body;
+	var newSettings = {
+		bucket: data.bucket || "",
+		host: data.host || "",
+		path: data.path || "",
+		region: data.region || ""
+	};
 
-    saveSettings(newSettings, res, next);
-  }
+	saveSettings(newSettings, res, next);
+}
 
-  function saveSettings(settings, res, next) {
-    db.setObject(Package.name, settings, function(err) {
-      if (err) {
-        return next(makeError(err));
-      }
+function credentials(req, res, next) {
+	var data = req.body;
+	var newSettings = {
+		accessKeyId: data.accessKeyId || "",
+		secretAccessKey: data.secretAccessKey || ""
+	};
 
-      fetchSettings();
-      res.json('Saved!');
-    });
-  }
+	saveSettings(newSettings, res, next);
+}
 
-  plugin.uploadImage = function (data, callback) {
-    var image = data.image;
+function saveSettings(settings, res, next) {
+	db.setObject(Package.name, settings, function (err) {
+		if (err) {
+			return next(makeError(err));
+		}
 
-    if (!image) {
-      return callback(new Error('invalid image'));
-    }
+		fetchSettings();
+		res.json("Saved!");
+	});
+}
 
-    var type = image.url ? 'url' : 'file';
+plugin.uploadImage = function (data, callback) {
+	var image = data.image;
 
-    if (type === 'file') {
-      if (!image.path) {
-        return callback(new Error('invalid image path'));
-      }
+	if (!image) {
+		return callback(new Error("invalid image"));
+	}
 
-      fs.readFile(image.path, function(err, buffer) {
-        uploadToS3(image.name, err, buffer, callback);
-      });
-    }
-    else {
-      var filename = image.url.split('/').pop();
+	var type = image.url ? "url" : "file";
 
-      var imageDimension = parseInt(meta.config.profileImageDimension, 10) || 128;
+	if (type === "file") {
+		if (!image.path) {
+			return callback(new Error("invalid image path"));
+		}
 
-      // Resize image.
-      im(request(image.url), filename)
-        .resize(imageDimension + "^", imageDimension + "^")
-        .stream(function(err, stdout, stderr) {
-          if (err) {
-            return callback(makeError(err));
-          }
+		fs.readFile(image.path, function (err, buffer) {
+			uploadToS3(image.name, err, buffer, callback);
+		});
+	}
+	else {
+		var filename = image.url.split("/").pop();
 
-          // This is sort of a hack - We're going to stream the gm output to a buffer and then upload.
-          // See https://github.com/aws/aws-sdk-js/issues/94
-          var buf = new Buffer(0);
-          stdout.on('data', function(d) {
-            buf = Buffer.concat([buf, d]);
-          });
-          stdout.on('end', function() {
-            uploadToS3(filename, null, buf, callback);
-          });
-        }
-      );
-    }
-  };
+		var imageDimension = parseInt(meta.config.profileImageDimension, 10) || 128;
 
-  plugin.uploadFile = function (data, callback) {
-    var file = data.file;
+		// Resize image.
+		im(request(image.url), filename)
+			.resize(imageDimension + "^", imageDimension + "^")
+			.stream(function (err, stdout, stderr) {
+					if (err) {
+						return callback(makeError(err));
+					}
 
-    if (!file) {
-      return callback(new Error('invalid file'));
-    }
+					// This is sort of a hack - We"re going to stream the gm output to a buffer and then upload.
+					// See https://github.com/aws/aws-sdk-js/issues/94
+					var buf = new Buffer(0);
+					stdout.on("data", function (d) {
+						buf = Buffer.concat([buf, d]);
+					});
+					stdout.on("end", function () {
+						uploadToS3(filename, null, buf, callback);
+					});
+				}
+			);
+	}
+};
 
-    if (!file.path) {
-      return callback(new Error('invalid file path'));
-    }
+plugin.uploadFile = function (data, callback) {
+	var file = data.file;
 
-    fs.readFile(file.path, function(err, buffer) {
-      uploadToS3(file.name, err, buffer, callback);
-    });
-  };
+	if (!file) {
+		return callback(new Error("invalid file"));
+	}
 
-  function uploadToS3(filename, err, buffer, callback) {
-    if (err) {
-      return callback(makeError(err));
-    }
+	if (!file.path) {
+		return callback(new Error("invalid file path"));
+	}
 
-    var s3Path;
-    if (settings.path && 0 < settings.path.length) {
-      s3Path = settings.path;
+	fs.readFile(file.path, function (err, buffer) {
+		uploadToS3(file.name, err, buffer, callback);
+	});
+};
 
-      if (!s3Path.match(/\/$/)) {
-        // Add trailing slash
-        s3Path = s3Path + '/';
-      }
-    }
-    else {
-      s3Path = '/';
-    }
+function uploadToS3(filename, err, buffer, callback) {
+	if (err) {
+		return callback(makeError(err));
+	}
 
-    var s3KeyPath = s3Path.replace(/^\//, ''); // S3 Key Path should not start with slash.
+	var s3Path;
+	if (settings.path && 0 < settings.path.length) {
+		s3Path = settings.path;
 
-    var params = {
-      Bucket: settings.bucket,
-      ACL: "public-read",
-      Key: s3KeyPath + uuid() + path.extname(filename),
-      Body: buffer,
-      ContentLength: buffer.length,
-      ContentType: mime.lookup(filename)
-    };
-      
-    S3().putObject(params, function(err) {
-      if (err) {
-        return callback(makeError(err));
-      }
+		if (!s3Path.match(/\/$/)) {
+			// Add trailing slash
+			s3Path = s3Path + "/";
+		}
+	}
+	else {
+		s3Path = "/";
+	}
 
-      var host = 's3.amazonaws.com';
-      if (settings.host && 0 < settings.host.length) {
-        host = settings.host;
-      }   
+	var s3KeyPath = s3Path.replace(/^\//, ""); // S3 Key Path should not start with slash.
 
-        callback(null, {
-        name: filename,
-        // Use protocol-less urls so that both HTTP and HTTPS work:
-        url: '//' + host + '/' + params.Bucket + '/' + params.Key,
-      });
-    });
-  }
+	var params = {
+		Bucket: settings.bucket,
+		ACL: "public-read",
+		Key: s3KeyPath + uuid() + path.extname(filename),
+		Body: buffer,
+		ContentLength: buffer.length,
+		ContentType: mime.lookup(filename)
+	};
 
-  var admin = plugin.admin =  {};
+	S3().putObject(params, function (err) {
+		if (err) {
+			return callback(makeError(err));
+		}
 
-  admin.menu = function(custom_header, callback) {
-    custom_header.plugins.push({
-      "route": '/plugins/s3-uploads',
-      "icon": 'fa-envelope-o',
-      "name": 'S3 Uploads'
-    });
+		var host = "s3.amazonaws.com";
+		if (settings.host && 0 < settings.host.length) {
+			host = settings.host;
+		}
 
-    callback(null, custom_header);
-  }
+		callback(null, {
+			name: filename,
+			// Use protocol-less urls so that both HTTP and HTTPS work:
+			url: "//" + host + "/" + params.Bucket + "/" + params.Key,
+		});
+	});
+}
 
-}(module.exports));
+var admin = plugin.admin = {};
+
+admin.menu = function (custom_header, callback) {
+	custom_header.plugins.push({
+		"route": "/plugins/s3-uploads",
+		"icon": "fa-envelope-o",
+		"name": "S3 Uploads"
+	});
+
+	callback(null, custom_header);
+};
+
+module.exports = plugin;
