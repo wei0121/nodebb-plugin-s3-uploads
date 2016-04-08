@@ -27,7 +27,7 @@ If both are asset host and path are set, then the url will be http://cdn.mywebsi
   <li><a href="http://docs.aws.amazon.com/STS/latest/UsingSTS/sts_delegate.html">STS Documentation: Delegation</a></li>
 </ul>
 <div class="alert alert-warning">
-  <p>If you need help, create an <a href="https://github.com/KanoComputing/nodebb-plugin-s3-uploads/issues/">issue on Github</a>.</p>
+  <p>If you need help, create an <a href="https://github.com/LewisMcMahon/nodebb-plugin-s3-uploads/issues/">issue on Github</a>.</p>
 </div>
 
 <h3>Database Stored configuration:</h3>
