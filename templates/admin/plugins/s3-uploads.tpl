@@ -42,7 +42,20 @@ If both are asset host and path are set, then the url will be http://cdn.mywebsi
   <input type="text" id="s3path" name="path" value="{path}" title="S3 Path" class="form-control input-lg" placeholder="/assets"><br />
 
   <label for="aws-region">Region</label><br />
-  <input type="text" id="aws-region" name="region" value="{region}" title="AWS Region" class="form-control input-lg" placeholder="us-east-1"><br />
+  <select id="aws-region" name="region" title="AWS Region" class="form-control">
+    <option value="">..     </option>
+    <option value="us-east-1">Standard (us-east-1)</option>
+    <option value="us-west-1">N. California (us-west-1)</option>
+    <option value="us-west-2">Oregon (us-west-2)</option>
+    <option value="eu-west-1">Ireland (eu-west-1)</option>
+    <option value="eu-central-1">Frankfurt (eu-central-1)</option>
+    <option value="ap-northeast-1">Tokyo (ap-northeast-1)</option>
+    <option value="ap-northeast-2">Seoul (ap-northeast-2)</option>
+    <option value="ap-southeast-1">Singapore (ap-southeast-1)</option>
+    <option value="ap-southeast-2">Sydney (ap-southeast-2)</option>
+    <option value="sa-east-1">São Paulo (sa-east-1)</option>
+  </select>
+  <br />
     
   <button class="btn btn-primary" type="submit">Save</button>
 </form>
@@ -60,6 +73,9 @@ If both are asset host and path are set, then the url will be http://cdn.mywebsi
 
 <script>
   $(document).ready(function() {
+
+    $('#aws-region option[value="{region}"]').prop('selected', true)
+
     $("#s3-upload-bucket").on("submit", function (e) {
       e.preventDefault();
       save("s3settings", this);
