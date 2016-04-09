@@ -12,7 +12,9 @@ var AWS = require("aws-sdk"),
 	meta = module.parent.require("./meta"),
 	db = module.parent.require("./database"),
 	User = module.parent.require("./user"),
+	Posts = module.parent.require("./posts"),
 	Search = module.parent.require("./search"),
+	batch = module.parent.require("./batch"),
 	async = require("async");
 
 var plugin = {};
@@ -308,6 +310,10 @@ function uploadToS3(filename, err, buffer, callback) {
 	});
 }
 
+function reverseString(s) {
+	return s.split("").reverse().join("");
+}
+
 function findFilesStillInUse(callback){
 	var filesInUse = [];
 	
@@ -318,13 +324,19 @@ function findFilesStillInUse(callback){
 			if (!entry.banned){
 				var userPicture = entry.picture;
 				var userCover = "";
+				var reversed;
+				var trimmed;
 				User.getUserFields(entry.uid,["cover:url"],function (err,userData) {
 					userCover = userData["cover:url"];
 					if (userPicture){
-						filesInUse.push(userPicture);
+						reversed = reverseString(userPicture);
+						trimmed = reversed.split("/");
+						filesInUse.push(reverseString(trimmed[0]));
 					}
 					if (userCover){
-						filesInUse.push(userCover);
+						reversed = reverseString(userCover);
+						trimmed = reversed.split("/");
+						filesInUse.push(reverseString(trimmed[0]));
 					}
 					callback();
 				});
@@ -335,13 +347,33 @@ function findFilesStillInUse(callback){
 				return callback(err,null);
 			}
 
-			//get files from posts
-			Search.search ({searchIn:"posts",query:"*"},function (err,data) {
-				console.log(err);
-				console.log(data);
-			});
+			batch.processSortedSet("posts:pid", function(pids, next) {
+				var regex = /!\[([_0-9a-z\.]*)]\(\/\/s3\.amazonaws\.com.*?\)/ig;
+				//for each postID
+				async.each(pids,function (pid,callback) {
+					Posts.getPostData (pid, function (err,post) {
+						//the the post has a file on s3 in it
+						if (post.content.indexOf("s3.amazonaws.com") > -1){
+							var matches = [];
+							while (matches = regex.exec(post.content)) {
+								//if duplicate dont add
+								if (filesInUse.indexOf(matches[1]) == -1){
+									filesInUse.push(matches[1]);
+								}
+							}
+						}
+						callback();
+					});
+				},function (err) {
+					next(err);
+				});
 
-			return callback(null,filesInUse);
+			}, {}, function(err) {
+				if (err) {
+					return callback(err);
+				}
+				return callback(null,filesInUse);
+			});
 		});
 	});
 }
