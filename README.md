@@ -69,3 +69,12 @@ We highly recommend using either **Environment Variables** or **Instance Meta-da
 ## Caveats
 
 * Currently all uploads are stored in S3 keyed by a UUID and file extension, as such, if a user uploads multiple avatars, all versions will still exist in S3. This is a known issue and may require some sort of cron job to scan for old uploads that are no longer referenced in order for those objects to be deleted from S3.
+
+## Contributing
+
+Pull requests are welcome but we ask a few things:
+* Do not make pulls to master use a feature branch that starts with `feature/` for features and `bug/` for bugs.
+* Use eslint and the config included the basics are;
+    * Tabs not spaces.
+    * Double quotes not singles.
+* Leave the code in a better state than when you started
