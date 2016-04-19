@@ -198,12 +198,14 @@ plugin.uploadImage = function (data, callback) {
 	var image = data.image;
 
 	if (!image) {
+		winston.error("invalid image" );
 		return callback(new Error("invalid image"));
 	}
 
 	//check filesize vs. settings
 	if (image.size > parseInt(meta.config.maximumFileSize, 10) * 1024) {
-		return callback(new Error('[[error:file-too-big, ' + meta.config.maximumFileSize + ']]'));
+		winston.error("error:file-too-big, " + meta.config.maximumFileSize );
+		return callback(new Error("[[error:file-too-big, " + meta.config.maximumFileSize + "]]"));
 	}
 
 	var type = image.url ? "url" : "file";
@@ -226,21 +228,20 @@ plugin.uploadImage = function (data, callback) {
 		im(request(image.url), filename)
 			.resize(imageDimension + "^", imageDimension + "^")
 			.stream(function (err, stdout, stderr) {
-					if (err) {
-						return callback(makeError(err));
-					}
-
-					// This is sort of a hack - We"re going to stream the gm output to a buffer and then upload.
-					// See https://github.com/aws/aws-sdk-js/issues/94
-					var buf = new Buffer(0);
-					stdout.on("data", function (d) {
-						buf = Buffer.concat([buf, d]);
-					});
-					stdout.on("end", function () {
-						uploadToS3(filename, null, buf, callback);
-					});
+				if (err) {
+					return callback(makeError(err));
 				}
-			);
+
+				// This is sort of a hack - We"re going to stream the gm output to a buffer and then upload.
+				// See https://github.com/aws/aws-sdk-js/issues/94
+				var buf = new Buffer(0);
+				stdout.on("data", function (d) {
+					buf = Buffer.concat([buf, d]);
+				});
+				stdout.on("end", function () {
+					uploadToS3(filename, null, buf, callback);
+				});
+			});
 	}
 };
 
@@ -253,6 +254,12 @@ plugin.uploadFile = function (data, callback) {
 
 	if (!file.path) {
 		return callback(new Error("invalid file path"));
+	}
+
+	//check filesize vs. settings
+	if (file.size > parseInt(meta.config.maximumFileSize, 10) * 1024) {
+		winston.error("error:file-too-big, " + meta.config.maximumFileSize );
+		return callback(new Error("[[error:file-too-big, " + meta.config.maximumFileSize + "]]"));
 	}
 
 	fs.readFile(file.path, function (err, buffer) {
