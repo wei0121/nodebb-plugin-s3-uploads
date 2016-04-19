@@ -77,4 +77,7 @@ Pull requests are welcome but we ask a few things:
 * Use eslint and the config included the basics are;
     * Tabs not spaces.
     * Double quotes not singles.
-* Leave the code in a better state than when you started
+* Leave the code in a better state than when you started.
+* Dont update the version number in `package.json` but feel free to add yourself as a contributor.
+* If you make changes requiring documentation please add it.
+* If you wish to add a large change or feature make a issue first anc check with us.
