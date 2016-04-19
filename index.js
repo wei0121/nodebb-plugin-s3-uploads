@@ -201,6 +201,11 @@ plugin.uploadImage = function (data, callback) {
 		return callback(new Error("invalid image"));
 	}
 
+	//check filesize vs. settings
+	if (image.size > parseInt(meta.config.maximumFileSize, 10) * 1024) {
+		return callback(new Error('[[error:file-too-big, ' + meta.config.maximumFileSize + ']]'));
+	}
+
 	var type = image.url ? "url" : "file";
 
 	if (type === "file") {
