@@ -301,7 +301,7 @@ function uploadToS3(filename, err, buffer, callback) {
 			return callback(makeError(err));
 		}
 
-		var host = "s3.amazonaws.com";
+		var host = params.Bucket +".s3.amazonaws.com";
 		if (settings.host && 0 < settings.host.length) {
 			host = settings.host;
 		}
@@ -309,7 +309,7 @@ function uploadToS3(filename, err, buffer, callback) {
 		callback(null, {
 			name: filename,
 			// Use protocol-less urls so that both HTTP and HTTPS work:
-			url: "//" + host + "/" + params.Bucket + "/" + params.Key,
+			url: "//" + host + "/" + params.Key
 		});
 	});
 }
