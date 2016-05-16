@@ -306,8 +306,8 @@ function uploadToS3(filename, err, buffer, callback) {
 		if (settings.host && 0 < settings.host.length) {
 			host = settings.host;
 			// host must start with http or https
-			if (!host.startsWith('http')) {
-				host = 'http://' + host;
+			if (!host.startsWith("http")) {
+				host = "http://" + host;
 			}
 		}
 
