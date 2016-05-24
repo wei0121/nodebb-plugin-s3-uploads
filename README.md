@@ -57,7 +57,7 @@ To use Instance Meta-data, you'll need to setup role delegation, see the followi
 From the NodeBB Admin panel, you can configure the following settings to be stored in the Database:
 
 * `bucket` — The S3 bucket to upload into
-* `host` - The base URL for the asset.  **Typcially http://<bucket>.s3.amazonaws.com**
+* `host` - The base URL for the asset.  **Typcially http://\<bucket\>.s3.amazonaws.com**
 * `path` - The asset path (optional)
 * `accessKeyId` — The AWS Access Key Id
 * `secretAccessKey` — The AWS Secret Access Key
