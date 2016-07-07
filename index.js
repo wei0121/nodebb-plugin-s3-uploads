@@ -29,8 +29,6 @@ var settings = {
 var accessKeyIdFromDb = false;
 var secretAccessKeyFromDb = false;
 
-var adminRoute = "/admin/plugins/s3-uploads";
-
 function fetchSettings(callback) {
 	db.getObjectFields(Package.name, Object.keys(settings), function (err, newSettings) {
 		if (err) {
@@ -133,6 +131,7 @@ plugin.load = function (params, callback) {
 		if (err) {
 			return winston.error(err.message);
 		}
+		var adminRoute = "/admin/plugins/s3-uploads";
 
 		params.router.get(adminRoute, params.middleware.applyCSRF, params.middleware.admin.buildHeader, renderAdmin);
 		params.router.get("/api" + adminRoute, params.middleware.applyCSRF, renderAdmin);
@@ -148,10 +147,19 @@ function renderAdmin(req, res) {
 	// Regenerate csrf token
 	var token = req.csrfToken();
 
+	var Config = require("./../../config.json");
+	var forumPath = "";
+	if(Config.url){
+		forumPath = forumPath+String(Config.url);
+	}
+	if(forumPath.split("").reverse()[0] != "/" ){
+		forumPath = forumPath + "/";
+	}
 	var data = {
 		bucket: settings.bucket,
 		host: settings.host,
 		path: settings.path,
+		forumPath: forumPath,
 		region: settings.region,
 		accessKeyId: (accessKeyIdFromDb && settings.accessKeyId) || "",
 		secretAccessKey: (accessKeyIdFromDb && settings.secretAccessKey) || "",
