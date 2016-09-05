@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/LewisMcMahon/nodebb-plugin-s3-uploads.git"
+    "url": "https://github.com/louiseMcMahon/nodebb-plugin-s3-uploads.git"
   },
   "keywords": [
     "nodebb",
@@ -21,11 +21,11 @@
   "contributors": [
     "Barış Soner Uşaklı <barisusakli@gmail.com>",
     "Joseph Chen <joseph.chen@gmail.com>",
-    "Lewis McMahon <lewis@lewismcmahon.co.uk>"
+    "louise McMahon <louise@louisemcmahon.co.uk>"
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/LewisMcMahon/nodebb-plugin-s3-uploads/issues"
+    "url": "https://github.com/louiseMcMahon/nodebb-plugin-s3-uploads/issues"
   },
   "nbbpm": {
     "compatibility": "^1.0.0"
