@@ -71,4 +71,4 @@ We highly recommend using either **Environment Variables** or **Instance Meta-da
 * Currently all uploads are stored in S3 keyed by a UUID and file extension, as such, if a user uploads multiple avatars, all versions will still exist in S3. This is a known issue and may require some sort of cron job to scan for old uploads that are no longer referenced in order for those objects to be deleted from S3.
 
 ## Contributing
-[Before contributing please check the contribution guidelines](https://github.com/LewisMcMahon/nodebb-plugin-s3-uploads/blob/master/.github/CONTRIBUTING.md)
+[Before contributing please check the contribution guidelines](https://github.com/LouiseMcMahon/nodebb-plugin-s3-uploads/blob/master/.github/CONTRIBUTING.md)
