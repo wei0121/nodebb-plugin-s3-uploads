@@ -7,6 +7,7 @@ var AWS = require("aws-sdk"),
 	request = require("request"),
 	path = require("path"),
 	winston = module.parent.require("winston"),
+	nconf = module.parent.require('nconf'),
 	gm = require("gm"),
 	im = gm.subClass({imageMagick: true}),
 	meta = module.parent.require("./meta"),
@@ -147,11 +148,7 @@ function renderAdmin(req, res) {
 	// Regenerate csrf token
 	var token = req.csrfToken();
 
-	var Config = require("./../../config.json");
-	var forumPath = "";
-	if(Config.url){
-		forumPath = forumPath+String(Config.url);
-	}
+	var forumPath = nconf.get('url');
 	if(forumPath.split("").reverse()[0] != "/" ){
 		forumPath = forumPath + "/";
 	}
