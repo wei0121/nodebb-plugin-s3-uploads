@@ -214,10 +214,15 @@ plugin.uploadImage = function (data, callback) {
 	}
 
 	var type = image.url ? "url" : "file";
+	var allowedMimeTypes = ['image/png', 'image/jpeg', 'image/gif'];
 
 	if (type === "file") {
 		if (!image.path) {
 			return callback(new Error("invalid image path"));
+		}
+
+		if (allowedMimeTypes.indexOf(mime.lookup(image.path)) === -1) {
+			return callback(new Error("invalid mime type"));
 		}
 
 		fs.readFile(image.path, function (err, buffer) {
@@ -225,6 +230,9 @@ plugin.uploadImage = function (data, callback) {
 		});
 	}
 	else {
+		if (allowedMimeTypes.indexOf(mime.lookup(image.url)) === -1) {
+			return callback(new Error("invalid mime type"));
+		}
 		var filename = image.url.split("/").pop();
 
 		var imageDimension = parseInt(meta.config.profileImageDimension, 10) || 128;
