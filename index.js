@@ -119,12 +119,17 @@ function makeError(err) {
 	return err;
 }
 
-plugin.activate = function () {
-	fetchSettings();
+plugin.activate = function (data) {
+	if (data.id === 'nodebb-plugin-s3-uploads') {
+		fetchSettings();
+	}
+
 };
 
-plugin.deactivate = function () {
-	S3Conn = null;
+plugin.deactivate = function (data) {
+	if (data.id === 'nodebb-plugin-s3-uploads') {
+		S3Conn = null;
+	}
 };
 
 plugin.load = function (params, callback) {
