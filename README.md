@@ -1,6 +1,6 @@
 # NodeBB S3 Uploads Plugin
 
-[![Dependency Status](https://david-dm.org/LewisMcMahon/nodebb-plugin-s3-uploads.svg)](https://david-dm.org/LewisMcMahon/nodebb-plugin-s3-uploads)
+[![Dependency Status](https://david-dm.org/LouiseMcMahon/nodebb-plugin-s3-uploads.svg)](https://david-dm.org/LewisMcMahon/nodebb-plugin-s3-uploads)
 
 This plugin is a fork of [nodebb-plugin-s3-uploads](https://github.com/earthsenze/nodebb-plugin-s3-uploads) as it was no longer being maintained
 
