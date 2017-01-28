@@ -61,12 +61,15 @@ export S3_UPLOADS_PATH="path"
 		<option value="us-east-1">Standard (us-east-1)</option>
 		<option value="us-west-1">N. California (us-west-1)</option>
 		<option value="us-west-2">Oregon (us-west-2)</option>
+		<option value="ca-central-1">Canada (ca-central-1)</option>
 		<option value="eu-west-1">Ireland (eu-west-1)</option>
+		<option value="eu-west-2">London (eu-west-2)</option>
 		<option value="eu-central-1">Frankfurt (eu-central-1)</option>
 		<option value="ap-northeast-1">Tokyo (ap-northeast-1)</option>
 		<option value="ap-northeast-2">Seoul (ap-northeast-2)</option>
 		<option value="ap-southeast-1">Singapore (ap-southeast-1)</option>
 		<option value="ap-southeast-2">Sydney (ap-southeast-2)</option>
+		<option value="ap-south-1">Mumbai (ap-south-1)</option>
 		<option value="sa-east-1">São Paulo (sa-east-1)</option>
 	</select>
 	<br/>
