@@ -286,6 +286,8 @@ plugin.uploadFile = function (data, callback) {
 };
 
 function uploadToS3(filename, err, buffer, callback) {
+	winston.info('upload file');
+
 	if (err) {
 		return callback(makeError(err));
 	}
