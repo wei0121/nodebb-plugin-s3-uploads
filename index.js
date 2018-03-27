@@ -47,14 +47,14 @@ function fetchSettings(callback) {
 			settings.accessKeyId = newSettings.accessKeyId;
 			accessKeyIdFromDb = true;
 		} else {
-			settings.accessKeyId = false;
+			settings.accessKeyId = process.env.AWS_ACCESS_KEY_ID;
 		}
 
 		if (newSettings.secretAccessKey) {
 			settings.secretAccessKey = newSettings.secretAccessKey;
-			secretAccessKeyFromDb = false;
+			secretAccessKeyFromDb = true;
 		} else {
-			settings.secretAccessKey = false;
+			settings.secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
 		}
 
 		if (!newSettings.bucket) {
