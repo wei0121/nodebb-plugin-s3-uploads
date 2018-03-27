@@ -110,9 +110,9 @@ function S3() {
 
 function makeError(err) {
 	if (err instanceof Error) {
-		err.message = Package.name + " :: " + err.message;
+		err.message = Package.name + " :: " + err.message + "upload";
 	} else {
-		err = new Error(Package.name + " :: " + err);
+		err = new Error(Package.name + " :: " + err + "uploads");
 	}
 
 	winston.error(err.message);
@@ -286,8 +286,7 @@ plugin.uploadFile = function (data, callback) {
 };
 
 function uploadToS3(filename, err, buffer, callback) {
-	winston.error('upload file');
-
+    
 	if (err) {
 		return callback(makeError(err));
 	}
