@@ -114,8 +114,8 @@ function makeError(err) {
         host: settings.host,
         path: settings.path,
         region: settings.region,
-        accessKeyId: settings.accessKeyId),
-        secretAccessKey: settings.secretAccessKey),
+        accessKeyId: settings.accessKeyId,
+        secretAccessKey: settings.secretAccessKey,
     };
     var logger = "logger: " + data
 	if (err instanceof Error) {
