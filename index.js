@@ -336,10 +336,9 @@ function uploadToS3(filename, err, buffer, callback) {
 	};
     AWS.config.update({
         accessKeyId: settings.accessKeyId,
-        secretAccessKey: settings.secretAccessKey,
-        region: settings.region
+        secretAccessKey: settings.secretAccessKey
     });
-
+    AWS.config.region = settings.region;
 	S3().putObject(params, function (err) {
 		if (err) {
 			return callback(makeError(err));
