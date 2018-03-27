@@ -328,7 +328,7 @@ function uploadToS3(filename, err, buffer, callback) {
 
 	var params = {
 		Bucket: settings.bucket,
-		ACL: "public-read",
+		ACL: "authenticated-read",
 		Key: s3KeyPath + uuid() + path.extname(filename),
 		Body: buffer,
 		ContentLength: buffer.length,
@@ -339,6 +339,9 @@ function uploadToS3(filename, err, buffer, callback) {
         secretAccessKey: settings.secretAccessKey
     });
     AWS.config.region = settings.region;
+    AWS.config.apiVersions = {
+        s3: '2006-03-01'
+    };
 	S3().putObject(params, function (err) {
 		if (err) {
 			return callback(makeError(err));
