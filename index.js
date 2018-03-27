@@ -111,15 +111,24 @@ function S3() {
 }
 
 function makeError(err) {
-    var data = {
-        bucket: settings.bucket,
-        host: settings.host,
-        path: settings.path,
-        region: settings.region,
-        accessKeyId: settings.accessKeyId,
-        secretAccessKey: settings.secretAccessKey,
-    };
-    var logger = "logger: " + accessKeyIdFromDb + "; " + settings.accessKeyId + "; " + settings.secretAccessKey + "; " + settings.host + ";;" + process.env.AWS_ACCESS_KEY_ID + "; " + process.env.AWS_SECRET_ACCESS_KEY
+    
+    var s3Path;
+    if (settings.path && 0 < settings.path.length) {
+        s3Path = settings.path;
+        
+        if (!s3Path.match(/\/$/)) {
+            // Add trailing slash
+            s3Path = s3Path + "/";
+        }
+    }
+    else {
+        s3Path = "/";
+    }
+    
+    var s3KeyPath = s3Path.replace(/^\//, ""); // S3 Key Path should not start with slash.
+
+                                   
+    var logger = "logger: " + accessKeyIdFromDb + "; " + settings.accessKeyId + "; " + settings.secretAccessKey + "; " + s3KeyPath + ";"
 	if (err instanceof Error) {
 		err.message = Package.name + " :: " + err.message + ", " + logger;
 	} else {
