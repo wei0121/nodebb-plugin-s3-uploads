@@ -86,12 +86,9 @@ function fetchSettings(callback) {
 				accessKeyId: settings.accessKeyId,
 				secretAccessKey: settings.secretAccessKey
 			});
-        } else {
-           AWS.config.update({
-                accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
-                secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || ""
-           });
         }
+
+        
 
 		if (settings.region) {
 			AWS.config.update({
@@ -122,7 +119,7 @@ function makeError(err) {
         accessKeyId: settings.accessKeyId,
         secretAccessKey: settings.secretAccessKey,
     };
-    var logger = "logger: " + accessKeyIdFromDb + "; " + settings.accessKeyId + "; " + settings.secretAccessKey + "; " + settings.host + "."
+    var logger = "logger: " + accessKeyIdFromDb + "; " + settings.accessKeyId + "; " + settings.secretAccessKey + "; " + settings.host + ";;" + process.env.AWS_ACCESS_KEY_ID + "; " + process.env.AWS_SECRET_ACCESS_KEY
 	if (err instanceof Error) {
 		err.message = Package.name + " :: " + err.message + ", " + logger;
 	} else {
@@ -134,14 +131,14 @@ function makeError(err) {
 }
 
 plugin.activate = function (data) {
-	if (data.id === 'nodebb-plugin-s3-uploads') {
+	if (data.id === 'nodebb-plugin-s3-uploads-updated') {
 		fetchSettings();
 	}
 
 };
 
 plugin.deactivate = function (data) {
-	if (data.id === 'nodebb-plugin-s3-uploads') {
+	if (data.id === 'nodebb-plugin-s3-uploads-updated') {
 		S3Conn = null;
 	}
 };
