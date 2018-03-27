@@ -334,6 +334,10 @@ function uploadToS3(filename, err, buffer, callback) {
 		ContentLength: buffer.length,
 		ContentType: mime.lookup(filename)
 	};
+    AWS.config.update({
+        accessKeyId: settings.accessKeyId,
+        secretAccessKey: settings.secretAccessKey
+    });
 
 	S3().putObject(params, function (err) {
 		if (err) {
