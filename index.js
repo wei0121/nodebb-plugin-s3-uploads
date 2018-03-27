@@ -109,8 +109,17 @@ function S3() {
 }
 
 function makeError(err) {
+    var data = {
+        bucket: settings.bucket,
+        host: settings.host,
+        path: settings.path,
+        region: settings.region,
+        accessKeyId: settings.accessKeyId),
+        secretAccessKey: settings.secretAccessKey),
+    };
+    var logger = "logger: " + data
 	if (err instanceof Error) {
-		err.message = Package.name + " :: " + err.message + "upload";
+		err.message = Package.name + " :: " + err.message + ", " + logger;
 	} else {
 		err = new Error(Package.name + " :: " + err + "uploads");
 	}
