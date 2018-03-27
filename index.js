@@ -117,7 +117,7 @@ function makeError(err) {
         accessKeyId: settings.accessKeyId,
         secretAccessKey: settings.secretAccessKey,
     };
-    var logger = "logger: " + data
+    var logger = "logger: " + settings.accessKeyId + "; " + settings.secretAccessKey + "; " + settings.host + "."
 	if (err instanceof Error) {
 		err.message = Package.name + " :: " + err.message + ", " + logger;
 	} else {
