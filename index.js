@@ -86,7 +86,12 @@ function fetchSettings(callback) {
 				accessKeyId: settings.accessKeyId,
 				secretAccessKey: settings.secretAccessKey
 			});
-		}
+        } else {
+           AWS.config.update({
+                accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+                secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+           });
+        }
 
 		if (settings.region) {
 			AWS.config.update({
@@ -117,7 +122,7 @@ function makeError(err) {
         accessKeyId: settings.accessKeyId,
         secretAccessKey: settings.secretAccessKey,
     };
-    var logger = "logger: " + settings.accessKeyId + "; " + settings.secretAccessKey + "; " + settings.host + "."
+    var logger = "logger: " + accessKeyIdFromDb + "; " + settings.accessKeyId + "; " + settings.secretAccessKey + "; " + settings.host + "."
 	if (err instanceof Error) {
 		err.message = Package.name + " :: " + err.message + ", " + logger;
 	} else {
